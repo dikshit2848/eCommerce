@@ -1,12 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Row, Col, Image, ListGroup, Card, Button } from "react-bootstrap";
 import Rating from "../components/Rating";
-import Products from "../products";
+import axios from "axios";
 
 const ProductScreen = () => {
+  const [product, setProduct] = useState({});
   const { id } = useParams();
-  const product = Products.find((product) => product._id === id);
+
+  const fetchProduct = useCallback(async () => {
+    const { data } = await axios.get(`/api/products/${id}`);
+    // console.log(data);
+    setProduct(data);
+  }, [id]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
+
+  // const prod = Products.find((product) => product._id === id);
   const { name, image, rating, numReviews, price, description, countInStock } =
     product;
   return (
@@ -24,7 +36,7 @@ const ProductScreen = () => {
               <h3>{name}</h3>
             </ListGroup.Item>
             <ListGroup.Item>
-              <Rating value={rating} text={`${numReviews} reviews`} />
+              <Rating rating={rating} text={`${numReviews} reviews`} />
             </ListGroup.Item>
             <ListGroup.Item>Price : ${price}</ListGroup.Item>
             <ListGroup.Item>Description : {description}</ListGroup.Item>
