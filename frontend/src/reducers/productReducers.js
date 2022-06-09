@@ -7,6 +7,7 @@ import {
   PRODUCT_DETAILS_FAIL,
 } from "../constants/productConstants";
 
+// here the state of productList is a object which has products array
 export const productListReducer = (state = { products: [] }, action) => {
   switch (action.type) {
     case PRODUCT_LIST_REQUEST:
@@ -16,10 +17,11 @@ export const productListReducer = (state = { products: [] }, action) => {
     case PRODUCT_LIST_FAIL:
       return { loading: false, error: action.payload };
     default:
-      return { state };
+      return state;
   }
 };
 
+// here the state of productDetail is a object which has a product object which contains an array of reviews
 export const productDetailReducer = (
   state = { product: { reviews: [] } },
   action
@@ -32,6 +34,6 @@ export const productDetailReducer = (
     case PRODUCT_DETAILS_FAIL:
       return { loading: false, error: action.payload };
     default:
-      return { state };
+      return state;
   }
 };

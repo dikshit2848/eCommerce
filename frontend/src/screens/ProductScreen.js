@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useParams,
+  useNavigate,
+  createSearchParams,
+} from "react-router-dom";
 import {
   Row,
   Col,
@@ -16,13 +21,16 @@ import Loader from "../components/Loader";
 import { listProductDetails } from "../actions/productActions";
 
 const ProductScreen = () => {
-  const [qty, setQty] = useState(0);
+  const [qty, setQty] = useState(1);
   const dispatch = useDispatch();
   const { id } = useParams();
-  let history = useNavigate();
+  let navigate = useNavigate();
 
   const addToCartHandler = () => {
-    history(`/cart/${id}?qty=${qty}`);
+    navigate({
+      pathname: `/cart/${id}`,
+      search: createSearchParams({ qty: qty }).toString(),
+    });
   };
 
   const productDetails = useSelector((state) => state.productDetails);
