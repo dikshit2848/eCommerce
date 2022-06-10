@@ -24,7 +24,7 @@ const ProductScreen = () => {
   const [qty, setQty] = useState(1);
   const dispatch = useDispatch();
   const { id } = useParams();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const addToCartHandler = () => {
     navigate({
