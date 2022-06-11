@@ -1,7 +1,15 @@
-import { CART_ADD_ITEM, CART_REMOVE_ITEM } from "../constants/cartContants";
+import {
+  CART_ADD_ITEM,
+  CART_REMOVE_ITEM,
+  CART_SAVE_PAYMENT_METHOD,
+  CART_SAVE_SHIPPING_ADDRESS,
+} from "../constants/cartConstants";
 // import produce from "immer";
 
-export const cartReducer = (state = { cartItems: [] }, action) => {
+export const cartReducer = (
+  state = { cartItems: [], shippingAddress: {} },
+  action
+) => {
   switch (action.type) {
     case CART_ADD_ITEM:
       const item = action.payload;
@@ -25,27 +33,17 @@ export const cartReducer = (state = { cartItems: [] }, action) => {
           (item) => item.product !== action.payload
         ),
       };
+    case CART_SAVE_SHIPPING_ADDRESS:
+      return {
+        ...state,
+        shippingAddress: action.payload,
+      };
+    case CART_SAVE_PAYMENT_METHOD:
+      return {
+        ...state,
+        paymentMethod: action.payload,
+      };
     default:
       return state;
   }
-  // produce(state, (draft) => {
-  //   switch (action.type) {
-  //     case CART_ADD_ITEM:
-  //       const item = action.payload;
-  //       console.log(draft);
-  //       const existItem = draft.cartItems.find(
-  //         (cartItem) => (cartItem.product = item.product)
-  //       );
-  //       if (existItem) {
-  //         draft.cartItems.forEach((cartItem) =>
-  //           cartItem.product === item.product ? item : cartItem
-  //         );
-  //       } else {
-  //         draft.cartItems.push(item);
-  //       }
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // });
 };

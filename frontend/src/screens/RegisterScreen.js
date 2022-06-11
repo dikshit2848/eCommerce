@@ -22,21 +22,19 @@ const RegisterScreen = () => {
   const userRegister = useSelector((state) => state.userRegister);
   const { loading, error, userInfo } = userRegister;
 
-  // useEffect(() => {
-  //   if (userInfo) {
-  //     console.log("here login");
-  //     navigate({ pathname: redirect });
-  //   }
-  // }, [navigate, userInfo, redirect]);
+  console.log("userInfo", userInfo);
+  useEffect(() => {
+    if (userInfo) {
+      navigate({ pathname: redirect });
+    }
+  }, [navigate, userInfo, redirect]);
 
   const submitHandler = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setMessage("password donot match");
     } else {
-      setMessage("");
       dispatch(register(name, email, password));
-      navigate({ pathname: redirect });
     }
     // this is where we want to dispatch register
   };

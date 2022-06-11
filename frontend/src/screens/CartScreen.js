@@ -36,8 +36,14 @@ const CartScreen = () => {
     dispatch(removeFromCart(id));
   };
 
+  const { userInfo } = useSelector((state) => state.userLogin);
+
   const checkOutHandler = () => {
-    navigate("/login?redirect=shipping");
+    if (userInfo) {
+      navigate("/shipping");
+    } else {
+      navigate("/login");
+    }
   };
 
   useEffect(() => {
@@ -63,7 +69,7 @@ const CartScreen = () => {
                 <ListGroup.Item key={product}>
                   <Row>
                     <Col md={2}>
-                      <Image src={image} alt={name} fluid />
+                      <Image src={image} alt={name} fluid rounded />
                     </Col>
                     <Col md={3}>
                       <Link to={`/product/${product}`}>{name}</Link>

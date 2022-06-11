@@ -22,7 +22,10 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if (userInfo) {
-      console.log("here login");
+      console.log("here from login to homescreen");
+      //need to implement when the user try to checkout to cart and come to login screen then he should go back to cart
+      // console.log(navigate(-1));
+      //currently when logged in through checkout user goes to the home screen
       navigate({ pathname: redirect });
     }
   }, [navigate, userInfo, redirect]);
