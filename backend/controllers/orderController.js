@@ -14,7 +14,6 @@ const addOrderItems = asyncHandler(async (req, res) => {
     shippingPrice,
     totalPrice,
   } = req.body;
-  console.log(req.user);
   if (orderItems && orderItems.length === 0) {
     res.status(400);
     throw new Error("No Order Items");
@@ -63,7 +62,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
       id: req.body.id,
       status: req.body.status,
       update_time: req.body.update_time,
-      email_address: req.body.pair.email_address,
+      email_address: req.body.payer.email_address,
     };
     const updatedOrder = await order.save();
     res.json(updatedOrder);
@@ -73,4 +72,12 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
   }
 });
 
-export { addOrderItems, getOrderById, updateOrderToPaid };
+//@desc   GET logged in user orders
+//@route  GET api/orders/myorders
+//@access private
+const getMyOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({ user: req.user._id });
+  res.json(orders);
+});
+
+export { addOrderItems, getOrderById, updateOrderToPaid, getMyOrders };

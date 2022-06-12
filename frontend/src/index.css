@@ -31,3 +31,6 @@ h2 {
 .rating span {
   margin: 0.1rem;
 }
+.mouse-pointer {
+  cursor: pointer;
+}
