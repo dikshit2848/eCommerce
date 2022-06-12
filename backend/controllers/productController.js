@@ -5,8 +5,27 @@ import asyncHandler from "express-async-handler";
 //@route  GET /api/products
 //@access public
 const getProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({});
-  res.json(products);
+  const pageSize = 10;
+  const page = Number(req.query.pageNumber) || 1;
+
+  //below functionality is for seaching items based on the search keyword..if there is data then regex is created on name else keyword is empty
+  const keyword = req.query.keyword
+    ? {
+        name: {
+          $regex: req.query.keyword,
+          $options: "i",
+        },
+      }
+    : {};
+
+  const count = await Product.countDocuments({ ...keyword });
+  //.limit will limit the result to the limit we have set and .skip will skip the number of items..in this case 2(pageSize)*pageNumber-1
+  const products = await Product.find({ ...keyword })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+  // console.log(products);
+  // return the total_number_of_pages and the currentPage and the products
+  res.json({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
 //@desc   fetch single product
@@ -46,7 +65,7 @@ const createProduct = asyncHandler(async (req, res) => {
     name: "sampleName",
     price: 0,
     user: req.user._id,
-    image: "/image/sample.jpg",
+    image: "/images/sampleImage.jpg",
     brand: "sample Brand",
     category: "sample Category",
     countInstock: 0,
@@ -84,10 +103,56 @@ const updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
+//@desc   create a new Review
+//@route  POST /api/products/:id/review
+//@access private
+const createProductReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+    if (alreadyReviewed) {
+      res.status(400);
+      throw new Error("Product Already Reviewed");
+    }
+    const review = {
+      name: req.user.name,
+      rating: Number(rating),
+      comment: comment,
+      user: req.user._id,
+    };
+    product.reviews.push(review);
+    product.numReviews = product.reviews.length;
+    product.rating =
+      product.reviews.reduce((acc, singleReview) => {
+        return (acc += singleReview.rating);
+      }, 0) / product.reviews.length;
+
+    await product.save();
+    res.status(201).json({ message: "Review Added" });
+  } else {
+    res.status(404);
+    throw new Error("product not found");
+  }
+});
+
+//@desc   get top rated products
+//@route  GET /api/products/top
+//@access public
+const getTopProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  res.json(products);
+});
+
 export {
   getProductById,
   getProducts,
   deleteProduct,
   createProduct,
   updateProduct,
+  createProductReview,
+  getTopProducts,
 };

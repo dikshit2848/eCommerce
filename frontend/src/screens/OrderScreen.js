@@ -1,24 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Row, Col, Image, Card, ListGroup } from "react-bootstrap";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { Row, Col, Image, Card, ListGroup, Button } from "react-bootstrap";
 import { PayPalButton } from "react-paypal-button-v2";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "../components/Message";
 import Loader from "../components/Loader";
-import { getOrderDetails, payOrder } from "../actions/orderActions";
+import {
+  getOrderDetails,
+  payOrder,
+  deliverOrder,
+} from "../actions/orderActions";
 import axios from "axios";
-import { ORDER_PAY_RESET } from "../constants/orderContants";
+import {
+  ORDER_PAY_RESET,
+  ORDER_DELIVER_RESET,
+} from "../constants/orderContants";
 const OrderScreen = () => {
-  const dispatch = useDispatch();
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [itemsPrice, setItemsPrice] = useState(0);
   const [sdkReady, setSdkReady] = useState(false);
 
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
   const orderPay = useSelector((state) => state.orderPay);
   //renaming loading to loading pay and succss to successpay
   const { loading: loadingpay, success: successPay } = orderPay;
+
+  const orderDeliver = useSelector((state) => state.orderDeliver);
+  //renaming loading to loading pay and succss to successpay
+  const { loading: loadingDeliver, success: successDeliver } = orderDeliver;
 
   useEffect(() => {
     if (!loading) {
@@ -37,6 +53,10 @@ const OrderScreen = () => {
   }, [order, loading]);
 
   useEffect(() => {
+    if (!userInfo) {
+      navigate("/login");
+    }
+
     const addPayPalScript = async () => {
       const { data: clientId } = await axios.get("/api/config/paypal");
       // the below steps from line 38-46 is for adding script tag to the html body
@@ -50,15 +70,20 @@ const OrderScreen = () => {
       document.body.appendChild(script);
     };
 
-    if (!order || order._id !== id || successPay) {
+    if (!order || order._id !== id || successPay || successDeliver) {
       dispatch({ type: ORDER_PAY_RESET });
+      dispatch({ type: ORDER_DELIVER_RESET });
       dispatch(getOrderDetails(id));
     } else if (!order.isPaid) {
       if (!window.paypal) {
         addPayPalScript();
       }
     }
-  }, [order, dispatch, id, successPay]);
+  }, [order, dispatch, id, successPay, successDeliver, navigate, userInfo]);
+
+  const deliverHandler = () => {
+    dispatch(deliverOrder(id));
+  };
 
   const successPaymentHandler = (paymentResult) => {
     console.log(paymentResult);
@@ -190,6 +215,21 @@ const OrderScreen = () => {
                   )}
                 </ListGroup.Item>
               )}
+              {loadingDeliver && <Loader />}
+              {userInfo &&
+                userInfo.isAdmin &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <ListGroup.Item>
+                    <Button
+                      className="btn w-100"
+                      type="button"
+                      onClick={deliverHandler}
+                    >
+                      Mark as Deliverd
+                    </Button>
+                  </ListGroup.Item>
+                )}
             </ListGroup>
           </Card>
         </Col>
