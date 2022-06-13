@@ -42,11 +42,10 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    paymentResult: {
-      id: { type: String },
-      status: { type: String },
-      update_time: { type: String },
-      email_address: { type: String },
+    razorpayResult: {
+      orderId: { type: String },
+      paymentId: { type: String },
+      signature: { type: String },
     },
     taxPrice: {
       type: Number,

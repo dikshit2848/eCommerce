@@ -234,3 +234,74 @@ export const listOrders = () => async (dispatch, getState) => {
     });
   }
 };
+
+export const payRazorPay =
+  (orderId, paymentData) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: ORDER_PAY_REQUEST,
+      });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY,
+        amount: paymentData.amount.toString(),
+        currency: paymentData.currency,
+        name: "Dikshit corp.",
+        description: "Test Transaction",
+        order_id: paymentData.order_id,
+        handler: async function (response) {
+          const result = await axios.put(
+            `/api/orders/${orderId}/pay`,
+            {
+              amount: paymentData.amount,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+            },
+            config
+          );
+          console.log(result.data);
+
+          dispatch({
+            type: ORDER_PAY_SUCCESS,
+            payload: result.data,
+          });
+        },
+        notes: {
+          address: "Corporate Office",
+        },
+        theme: {
+          color: "#80c0f0",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
+      // const { data } = await axios.put(
+      //   `/api/orders/${orderId}/pay`,
+      //   paymentResult,
+      //   config
+      // );
+    } catch (error) {
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      dispatch({
+        type: ORDER_PAY_FAIL,
+        payload: message,
+      });
+    }
+  };

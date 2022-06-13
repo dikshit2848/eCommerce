@@ -14,7 +14,7 @@ const PaymentScreen = () => {
     navigate({ pathname: "/shipping" });
   }
 
-  const [paymentMethod, setPaymentMethod] = useState("PayPal");
+  const [paymentMethod, setPaymentMethod] = useState("RazorPay");
 
   const dispatch = useDispatch();
 
@@ -22,7 +22,6 @@ const PaymentScreen = () => {
     e.preventDefault();
     dispatch(savePaymentMethod(paymentMethod));
     navigate({ pathname: "/placeorder" });
-    console.log("submit");
   };
 
   return (
@@ -35,10 +34,10 @@ const PaymentScreen = () => {
           <Col>
             <Form.Check
               type="radio"
-              label="PayPal or Credit Card"
-              id="PayPal"
+              label="RazorPay or Credit Card"
+              id="RazorPay"
               name="paymentMethod"
-              value="PayPal"
+              value="RazorPay"
               checked
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
