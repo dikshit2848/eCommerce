@@ -166,7 +166,7 @@ const ProductScreen = () => {
                 return (
                   <ListGroup.Item key={review._id}>
                     <strong>{review.name}</strong>
-                    <Rating rating={review.rating} />
+                    <Rating rating={review.rating} text="" />
                     <p>{review.createdAt.substring(0, 10)}</p>
                     <p>{review.comment}</p>
                   </ListGroup.Item>
@@ -183,8 +183,12 @@ const ProductScreen = () => {
                       <Form.Label>Rating</Form.Label>
                       <Form.Control
                         as="select"
-                        value={rating}
-                        onChange={(e) => setRating(e.target.value)}
+                        // value={rating}
+                        name="rating"
+                        onChange={(e) => {
+                          const selectedRating = e.target.value;
+                          setRating(selectedRating);
+                        }}
                       >
                         <option value="">Select...</option>
                         <option value="1">1 - Poor</option>
